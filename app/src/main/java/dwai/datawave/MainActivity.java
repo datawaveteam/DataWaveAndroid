@@ -34,41 +34,33 @@ public class MainActivity extends ActionBarActivity {
 
 
         });
+
+        final int sleep = 300;
         new Thread() {
             public void run() {
                 while(true) {
-
-
-                    try
-
-                    {
-                        startTone(440);
-                        Thread.sleep(10);
+                    try {
+                        startTone(261);
+                        Thread.sleep(sleep);
                         stopTone();
-                        startTone(600);
-                        Thread.sleep(10);
+                        startTone(293);
+                        Thread.sleep(sleep);
                         stopTone();
-                        startTone(1000);
-                        Thread.sleep(10);
+                        startTone(329);
+                        Thread.sleep(sleep);
                         stopTone();
-                        startTone(1200);
-                        Thread.sleep(10);
+                        startTone(349);
+                        Thread.sleep(sleep);
                         stopTone();
-                        startTone(1500);
-                        Thread.sleep(10);
+                        startTone(392);
+                        Thread.sleep(sleep);
                         stopTone();
-                    } catch (
-                            InterruptedException e
-                            )
-
-                    {
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
             }
         }.start();
-
-
     }
 
     private void editTextPressedEnter(EditText editText) {
@@ -87,24 +79,6 @@ public class MainActivity extends ActionBarActivity {
         }
         return bits;
     }
-
-    private void playSound() {
-
-        // Use a new tread as this can take a while
-        final Thread thread = new Thread(new Runnable() {
-            public void run() {
-//                genTone();
-//                handler.post(new Runnable() {
-//
-//                    public void run() {
-//                        playSound();
-//                    }
-//                });
-            }
-        });
-        thread.start();
-    }
-
 
     private class AudioIn extends Thread {
         private boolean stopped = false;
@@ -169,7 +143,7 @@ public class MainActivity extends ActionBarActivity {
         t = new Thread() {
             public void run() {
                 // set process priority
-                setPriority(Thread.MAX_PRIORITY);
+//                setPriority(Thread.MAX_PRIORITY);
                 int buffsize = AudioTrack.getMinBufferSize(sr,
                         AudioFormat.CHANNEL_OUT_MONO,
                         AudioFormat.ENCODING_PCM_16BIT);
