@@ -1,4 +1,3 @@
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -6,89 +5,106 @@
     android:elevation="0dp"
     tools:context="dwai.cosmosbrowser.MainBrowserScreen">
 
-    <include layout = "@layout/urlbar"
-        android:id = "@+id/urlBar"
-        />
+    <include
+        android:id="@+id/urlBar"
+        layout="@layout/urlbar" />
 
 
     <WebView
 
 
-        android:layout_marginTop="50dp"
-        android:layout_below="@id/urlBar"
+        android:id="@+id/rootWebView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id = "@+id/rootWebView"
+        android:layout_below="@id/urlBar"
+        android:layout_marginTop="50dp"
 
         />
 
 
     <ListView
 
-        android:visibility="invisible"
-        android:layout_below="@+id/searchBar"
-        android:id = "@+id/tabsListView"
+        android:id="@+id/tabsListView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/searchBar"
+        android:visibility="invisible">
 
 
     </ListView>
 
     <RelativeLayout
-        android:layout_height="match_parent"
-        android:visibility="gone"
-
+        android:id="@+id/moreOptionsView"
         android:layout_width="220dp"
-        android:background="@android:color/background_light"
-        android:id = "@+id/moreOptionsView"
-        android:layout_marginTop="5dp"
 
-        android:layout_marginBottom="170dp"
+        android:layout_height="match_parent"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        >
+        android:layout_marginBottom="170dp"
+
+        android:layout_marginTop="5dp"
+        android:background="@android:color/background_light"
+        android:visibility="gone">
+
         <LinearLayout
 
-            android:id = "@+id/topSettingsBar"
-            android:layout_alignParentTop="true"
+            android:id="@+id/topSettingsBar"
             android:layout_width="220dp"
+            android:layout_height="50dp"
             android:layout_alignParentRight="true"
-            android:layout_height="50dp">
+            android:layout_alignParentTop="true">
+
             <ImageView
                 android:layout_width="55dp"
                 android:layout_height="41dp"
-                android:scaleType="center"
-                />
+                android:scaleType="center" />
+
             <ImageView
                 android:layout_width="55dp"
                 android:layout_height="41dp"
                 android:scaleType="center"
 
                 />
+
             <ImageView
                 android:layout_width="55dp"
                 android:layout_height="41dp"
                 android:scaleType="center"
 
                 />
+
             <ImageView
                 android:layout_width="55dp"
                 android:layout_height="41dp"
-                android:scaleType="center"
-                android:clickable="true"
                 android:layout_marginLeft="2dp"
                 android:layout_marginRight="-2dp"
+                android:clickable="true"
                 android:onClick="clickedSettings"
+                android:scaleType="center"
                 android:src="@drawable/ic_more_vert_black_24dp"
 
                 />
         </LinearLayout>
 
 
-
     </RelativeLayout>
 
+    <Button
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:onClick="onClickPlay"
+        android:text="play"
+        android:layout_alignParentBottom="true"
+        />
 
+    <Button
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:onClick="onClickRecord"
+        android:text="rec"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        />
 
 
 </RelativeLayout>
