@@ -14,10 +14,7 @@ public class SoundUtil {
     private final int SAMPLE_RATE = 16000;
     private static final boolean isRunning = true;
 
-    public static void playSound(){
 
-
-    }
 
 
 
