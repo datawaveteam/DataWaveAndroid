@@ -2,9 +2,7 @@ package dwai.datawave;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;
-import android.media.AudioRecord;
 import android.media.AudioTrack;
-import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -13,6 +11,14 @@ import android.view.View;
 import android.widget.EditText;
 
 import java.nio.charset.Charset;
+
+import be.tarsos.dsp.AudioDispatcher;
+import be.tarsos.dsp.AudioEvent;
+import be.tarsos.dsp.AudioProcessor;
+import be.tarsos.dsp.io.android.AudioDispatcherFactory;
+import be.tarsos.dsp.pitch.PitchDetectionHandler;
+import be.tarsos.dsp.pitch.PitchDetectionResult;
+import be.tarsos.dsp.pitch.PitchProcessor;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -38,30 +44,45 @@ public class MainActivity extends ActionBarActivity {
         final int sleep = 300;
         new Thread() {
             public void run() {
-                while(true) {
+                while (true) {
                     try {
-                        startTone(261);
-                        Thread.sleep(sleep);
-                        stopTone();
-                        startTone(293);
-                        Thread.sleep(sleep);
-                        stopTone();
-                        startTone(329);
-                        Thread.sleep(sleep);
-                        stopTone();
-                        startTone(349);
-                        Thread.sleep(sleep);
-                        stopTone();
-                        startTone(392);
-                        Thread.sleep(sleep);
-                        stopTone();
+                        for (int i = 0; i < 40000; i += 100) {
+                            startTone(i);
+                            Thread.sleep(1000);
+                            Log.d("TAAG", "Frequency was " + i);
+                            stopTone();
+
+                        }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
             }
-        }.start();
+        };
+//        }.start();
+
+        AudioDispatcher dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0);
+
+        PitchDetectionHandler pdh = new PitchDetectionHandler() {
+            @Override
+            public void handlePitch(PitchDetectionResult result, AudioEvent e) {
+                final float pitchInHz = result.getPitch();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d("TAG WHATEVER", pitchInHz + "");
+                    }
+                });
+            }
+        };
+        AudioProcessor p = new PitchProcessor(PitchProcessor.PitchEstimationAlgorithm.FFT_YIN, 22050, 1024, pdh);
+
+        dispatcher.addAudioProcessor(p);
+        new Thread(dispatcher, "Audio Dispatcher").start();
+
+
     }
+
 
     private void editTextPressedEnter(EditText editText) {
         String url = editText.getText().toString();
@@ -80,59 +101,6 @@ public class MainActivity extends ActionBarActivity {
         return bits;
     }
 
-    private class AudioIn extends Thread {
-        private boolean stopped = false;
-        private final int SAMPLE_SIZE = 44100;
-
-        private AudioIn() {
-
-            start();
-        }
-
-        @Override
-        public void run() {
-            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-            AudioRecord recorder = null;
-            short[][] buffers = new short[256][160];
-            int ix = 0;
-
-            try {
-
-                int N = AudioRecord.getMinBufferSize(SAMPLE_SIZE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-                int microphoneBufferSize = AudioTrack.getMinBufferSize(SAMPLE_SIZE, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT);
-
-                recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                        SAMPLE_SIZE,
-                        AudioFormat.CHANNEL_IN_MONO,
-                        AudioFormat.ENCODING_PCM_16BIT,
-                        N * 10);
-
-                AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, SAMPLE_SIZE, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, microphoneBufferSize, AudioTrack.MODE_STREAM);
-                audioTrack.play();
-                recorder.startRecording();
-
-                // ... loop
-
-                while (!stopped) {
-                    short[] buffer = buffers[ix++ % buffers.length];
-
-                    N = recorder.read(buffer, 0, buffer.length);
-
-                    audioTrack.write(buffer, 0, buffer.length);
-
-                }
-            } catch (Throwable x) {
-                Log.d("TTAAAG", "Error reading voice audio", x);
-            } finally {
-                close();
-            }
-        }
-
-        private void close() {
-            stopped = true;
-        }
-
-    }
 
     Thread t;
     int sr = 44100;
