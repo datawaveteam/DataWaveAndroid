@@ -49,13 +49,9 @@ public class MainActivity extends ActionBarActivity {
             public void run() {
                 while (true) {
                     try {
-                        startTone(400);
-                        Thread.sleep(10);
-                        startTone(800);
-                        Thread.sleep(10);
-                        startTone(1200);
-                        Thread.sleep(10);
-                        startTone(1600);
+                        startTone(('Q'-32) * 100);
+
+                        Log.d("TAG STUFFFF AHH" , (('Q'-32) * 100) + "");
                         Thread.sleep(10);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
