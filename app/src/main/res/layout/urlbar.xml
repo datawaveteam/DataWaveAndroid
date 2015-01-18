@@ -26,22 +26,6 @@
 
 
             />
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:scaleType="center"
-            android:src = "@drawable/ic_content_copy_black_24dp"
-            android:id = "@+id/tabsButton"
-            android:onClick="clickedTabs"
-            />
-        <ImageView
-            android:layout_width="50dp"
-            android:id = "@+id/moreSettingsButton"
-            android:layout_height="match_parent"
-            android:scaleType="center"
-            android:clickable="true"
-            android:src = "@drawable/ic_more_vert_black_24dp"
-            android:onClick="clickedSettings"
-            />
+
     </LinearLayout>
 </merge>
