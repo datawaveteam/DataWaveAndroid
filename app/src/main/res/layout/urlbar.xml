@@ -22,7 +22,16 @@
             android:inputType="textWebEditText"
             android:digits="0,1,2,3,4,5,6,7,8,9,,qwertzuiopasdfghjklyxcvbnm.-"
             android:imeOptions="actionGo"
-            android:layout_weight="0.7"
+            android:layout_weight="0.85"
+
+
+            />
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.15"
+            android:text = "Go"
+            android:id = "@+id/goButtonURL"
 
 
             />

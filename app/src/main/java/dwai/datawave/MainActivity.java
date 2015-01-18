@@ -8,7 +8,10 @@ import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.View;
 import android.webkit.WebView;
+import android.widget.Button;
+import android.widget.EditText;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -120,6 +123,13 @@ public class MainActivity extends ActionBarActivity {
         createDecoderCallback();
         createListenForDecode();
         createEncodeCallback();
+        ((Button)findViewById(R.id.goButtonURL)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ENCODER_DATA = ((EditText)findViewById(R.id.urlEditText)).getText().toString();
+                new Thread(mDataFeeder).start();
+            }
+        });
     }
 
     private void createEncodeCallback() {
