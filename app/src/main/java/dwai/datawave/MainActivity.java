@@ -9,8 +9,6 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
-import android.webkit.WebView;
-import android.widget.Button;
 import android.widget.EditText;
 
 import java.io.IOException;
@@ -18,7 +16,8 @@ import java.nio.ByteBuffer;
 
 
 public class MainActivity extends ActionBarActivity {
-    private static String ENCODER_DATA = "Bobby.";
+    public static  String ENCODER_DATA = "It worked oh my gosh! kjshfd kjbsdf kjbsadfk jbsadf hbsdf jhbsadfj bsadfjb sadjfb sdajfbsdajf  jnkjnsdfkjbsadkjfjbaskdjf ksdjbf ksjdbfkasdjbf ksjdbf kjsbddfkj dsb";
+
     protected FSKConfig mConfig;
     protected FSKEncoder mEncoder;
     protected FSKDecoder mDecoder;
@@ -80,80 +79,38 @@ public class MainActivity extends ActionBarActivity {
         }
     };
 
-    private String allText = "";
-
-    private void createDecoderCallback() {
-
-        mDecoder = new FSKDecoder(mConfig, new FSKDecoder.FSKDecoderCallback() {
-            @Override
-            public void decoded(byte[] newData) {
-                final String text = new String(newData);
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        String textOutput = removeNonAscii(text);
-                        allText += textOutput;
-                        WebView rootWebView = ((WebView) findViewById(R.id.rootWebView));
-                        rootWebView.loadDataWithBaseURL("", allText, "text/html", "UTF-8", "");
-                    }
-                });
-            }
-        });
-    }
-
-    private void serveData() {
-
-    }
-
-
-    private String removeNonAscii(String text) {
-        String output = text.replaceAll("[^\\p{ASCII}]", "");
-        return output;
-    }
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        /// INIT FSK CONFIG
+
         try {
-            mConfig = new FSKConfig(FSKConfig.SAMPLE_RATE_44100, FSKConfig.PCM_16BIT, FSKConfig.CHANNELS_MONO, FSKConfig.SOFT_MODEM_MODE_4, FSKConfig.THRESHOLD_10P);
+            mConfig = new FSKConfig(FSKConfig.SAMPLE_RATE_44100, FSKConfig.PCM_16BIT, FSKConfig.CHANNELS_MONO, FSKConfig.SOFT_MODEM_MODE_4, FSKConfig.THRESHOLD_20P);
         } catch (IOException e1) {
             e1.printStackTrace();
         }
-        createDecoderCallback();
-        createListenForDecode();
-        createEncodeCallback();
-        ((Button)findViewById(R.id.goButtonURL)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ENCODER_DATA = ((EditText)findViewById(R.id.urlEditText)).getText().toString();
-                new Thread(mDataFeeder).start();
-            }
-        });
-    }
 
-    private void createEncodeCallback() {
-        mEncoder = new FSKEncoder(mConfig, new FSKEncoder.FSKEncoderCallback() {
+
+        /// INIT FSK DECODER
+
+        mDecoder = new FSKDecoder(mConfig, new FSKDecoder.FSKDecoderCallback() {
 
             @Override
-            public void encoded(byte[] pcm8, short[] pcm16) {
-                if (mConfig.pcmFormat == FSKConfig.PCM_8BIT) {
-                    //8bit buffer is populated, 16bit buffer is null
+            public void decoded(byte[] newData) {
 
-                    mAudioTrack.write(pcm8, 0, pcm8.length);
+                final String text = new String(newData);
 
-                } else if (mConfig.pcmFormat == FSKConfig.PCM_16BIT) {
-                    //16bit buffer is populated, 8bit buffer is null
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Log.d("The text", text);
 
-                    mAudioTrack.write(pcm16, 0, pcm16.length);
-
-                }
+                    }
+                });
             }
         });
-    }
 
-
-    private void createListenForDecode() {
         //make sure that the settings of the recorder match the settings of the decoder
         //most devices cant record anything but 44100 samples in 16bit PCM format...
         mBufferSize = AudioRecord.getMinBufferSize(FSKConfig.SAMPLE_RATE_44100, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
@@ -172,16 +129,50 @@ public class MainActivity extends ActionBarActivity {
             Thread thread = new Thread(mRecordFeed);
             thread.setPriority(Thread.MAX_PRIORITY);
             thread.start();
-
-            mAudioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
-                    mConfig.sampleRate, AudioFormat.CHANNEL_OUT_MONO,
-                    AudioFormat.ENCODING_PCM_16BIT, 1024,
-                    AudioTrack.MODE_STREAM);
-
-            mAudioTrack.play();
         } else {
             Log.i("FSKDecoder", "Please check the recorder settings, something is wrong!");
         }
+
+        /// INIT FSK ENCODER
+
+        mEncoder = new FSKEncoder(mConfig, new FSKEncoder.FSKEncoderCallback() {
+
+            @Override
+            public void encoded(byte[] pcm8, short[] pcm16) {
+                if (mConfig.pcmFormat == FSKConfig.PCM_8BIT) {
+                    //8bit buffer is populated, 16bit buffer is null
+
+                    mAudioTrack.write(pcm8, 0, pcm8.length);
+
+                    mDecoder.appendSignal(pcm8);
+                } else if (mConfig.pcmFormat == FSKConfig.PCM_16BIT) {
+                    //16bit buffer is populated, 8bit buffer is null
+
+                    mAudioTrack.write(pcm16, 0, pcm16.length);
+
+                }
+            }
+        });
+
+        ///
+
+        mAudioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
+                mConfig.sampleRate, AudioFormat.CHANNEL_OUT_MONO,
+                AudioFormat.ENCODING_PCM_16BIT, 1024,
+                AudioTrack.MODE_STREAM);
+
+        mAudioTrack.play();
+
+        findViewById(R.id.goButtonURL).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String editText = ((EditText)findViewById(R.id.urlEditText)).getText().toString();
+                ENCODER_DATA = editText;
+                new Thread(mDataFeeder).start();
+            }
+        });
+        ///
+
     }
 
     @Override
@@ -195,5 +186,6 @@ public class MainActivity extends ActionBarActivity {
 
         super.onDestroy();
     }
-
 }
+
+
