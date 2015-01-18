@@ -26,11 +26,10 @@ public class MainActivity extends ActionBarActivity {
         final EditText edittext = (EditText) findViewById(R.id.urlEditText);
         edittext.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                // If the event is a key-down event on the "enter" button
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
                         (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    Log.d("Tag", "some words here for sleep deprived stefan...");
                     editTextPressedEnter((EditText) v);
+                    return true;
                 }
                 return false;
             }
@@ -42,7 +41,7 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        createUrlEnterListener();
     }
     public void editTextPressedEnter(EditText view) {
         Log.d("tag", "this is working just fine.");

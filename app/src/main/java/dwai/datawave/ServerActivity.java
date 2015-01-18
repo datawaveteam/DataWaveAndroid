@@ -5,19 +5,28 @@ import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.webkit.WebView;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
-import com.daimajia.androidanimations.library.attention.PulseAnimator;
+import com.loopj.android.http.BaseJsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 
 
@@ -96,9 +105,85 @@ public class ServerActivity extends ActionBarActivity {
                 final String text = new String(newData);
                 runOnUiThread(new Runnable() {
                     public void run() {
+                        if (!text.contains(".")) {
+                            DataWaveRestClient.get(text, new RequestParams(), new BaseJsonHttpResponseHandler<String>() {
+
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, String rawJsonResponse, String response) {
+                                    try {
+                                        JSONObject jsonObject = new JSONObject(rawJsonResponse);
+                                        String summary = jsonObject.getString("summary");
+                                        ENCODER_DATA = summary;
+                                        new Thread(mDataFeeder).start();
+                                        findViewById(R.id.transmitting_server_text).setVisibility(View.VISIBLE);
+
+                                    } catch (JSONException jse) {
+                                        jse.printStackTrace();
+                                    }
+
+                                }
+
+                                @Override
+                                public void onFailure(int statusCode, Header[] headers, Throwable throwable, String rawJsonData, String errorResponse) {
+
+                                }
+
+                                @Override
+                                protected String parseResponse(String rawJsonData, boolean isFailure) throws Throwable {
+                                    return rawJsonData;
+                                }
+
+
+                            });
+                        } else {
+                            new Thread() {
+                                public void run() {
+                                    HttpClient client = new DefaultHttpClient();
+                                    HttpGet request = new HttpGet(text);
+                                    HttpResponse response = null;
+                                    try {
+                                        response = client.execute(request);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    String html = "";
+                                    InputStream in = null;
+                                    try {
+                                        in = response.getEntity().getContent();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                                    StringBuilder str = new StringBuilder();
+                                    String line = null;
+                                    try {
+                                        while ((line = reader.readLine()) != null) {
+                                            str.append(line);
+                                        }
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    try {
+                                        in.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    html = str.toString();
+                                    ENCODER_DATA = html;
+                                    new Thread(mDataFeeder).start();
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            findViewById(R.id.transmitting_server_text).setVisibility(View.VISIBLE);
+                                        }
+                                    });
+                                }
+
+                            }.start();
+                        }
                         Log.d("hz", text);
                         findViewById(R.id.receiving_server_text).setVisibility(View.VISIBLE);
-                        YoYo.with(Techniques.Pulse).duration(1000).playOn(findViewById(R.id.receiving_server_text));
                     }
                 });
             }
