@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.webkit.WebView;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -20,6 +21,8 @@ public class ClientActivity extends ActionBarActivity {
     protected FSKConfig mConfig;
     protected FSKEncoder mEncoder;
     protected FSKDecoder mDecoder;
+
+    TextView rootWebView;
 
     protected AudioTrack mAudioTrack;
 
@@ -86,12 +89,12 @@ public class ClientActivity extends ActionBarActivity {
             @Override
             public void decoded(byte[] newData) {
                 final String text = new String(newData);
+                Log.v("ASDF", text);
                 runOnUiThread(new Runnable() {
                     public void run() {
                         String textOutput = removeNonAscii(text);
                         allText += textOutput;
-                        WebView rootWebView = ((WebView) findViewById(R.id.rootWebView));
-                        rootWebView.loadDataWithBaseURL("", allText, "text/html", "UTF-8", "");
+                        rootWebView.setText(allText);
                     }
                 });
             }
@@ -113,6 +116,7 @@ public class ClientActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client);
+         rootWebView = ((TextView) findViewById(R.id.rootWebView));
         try {
             mConfig = new FSKConfig(FSKConfig.SAMPLE_RATE_44100, FSKConfig.PCM_16BIT, FSKConfig.CHANNELS_MONO, FSKConfig.SOFT_MODEM_MODE_4, FSKConfig.THRESHOLD_10P);
         } catch (IOException e1) {

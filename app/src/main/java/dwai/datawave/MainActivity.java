@@ -10,6 +10,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -44,6 +45,7 @@ public class MainActivity extends ActionBarActivity {
         }
     };
 
+    TextView rootWebView;
     protected Runnable mDataFeeder = new Runnable() {
 
         @Override
@@ -78,11 +80,13 @@ public class MainActivity extends ActionBarActivity {
             }
         }
     };
+    String allText ="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        rootWebView = ((TextView) findViewById(R.id.rootWebView));
 
         /// INIT FSK CONFIG
 
@@ -105,7 +109,8 @@ public class MainActivity extends ActionBarActivity {
                 runOnUiThread(new Runnable() {
                     public void run() {
                         Log.d("The text", text);
-
+                        allText += text;
+                        rootWebView.setText(allText);
                     }
                 });
             }

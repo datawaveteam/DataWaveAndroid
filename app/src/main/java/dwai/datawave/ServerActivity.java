@@ -79,8 +79,13 @@ public class ServerActivity extends ActionBarActivity {
                     }
 
                     dataFeed.get(buffer);
-                    findViewById(R.id.transmitting_server_text).setVisibility(View.VISIBLE);
-                    YoYo.with(Techniques.Pulse).duration(1000).playOn(findViewById(R.id.transmitting_server_text));
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            findViewById(R.id.transmitting_server_text).setVisibility(View.VISIBLE);
+                            YoYo.with(Techniques.Pulse).duration(1000).playOn(findViewById(R.id.transmitting_server_text));
+                        }
+                    });
                     mEncoder.appendData(buffer);
 
                     try {
@@ -102,7 +107,7 @@ public class ServerActivity extends ActionBarActivity {
         mDecoder = new FSKDecoder(mConfig, new FSKDecoder.FSKDecoderCallback() {
             @Override
             public void decoded(byte[] newData) {
-                final String text = new String(newData);
+                final String text = new String(newData).replaceAll("[^a-zA-Z]", "");
                 runOnUiThread(new Runnable() {
                     public void run() {
                         if (!text.contains(".")) {
@@ -111,6 +116,8 @@ public class ServerActivity extends ActionBarActivity {
                                 @Override
                                 public void onSuccess(int statusCode, Header[] headers, String rawJsonResponse, String response) {
                                     try {
+                                        Log.e("ASDFASDF", rawJsonResponse);
+                                        Log.e("FDSAFDSA", response);
                                         JSONObject jsonObject = new JSONObject(rawJsonResponse);
                                         String summary = jsonObject.getString("summary");
                                         ENCODER_DATA = summary;
