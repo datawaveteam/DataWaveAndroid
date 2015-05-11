@@ -12,6 +12,4 @@ Current documentation is very slim just because we haven't really had the time t
 For licensing information, read LICENSE.
 
 ###Contact
-If you'd like to contribute or would like to talk about anything regariding DataWave in any way, email Stefan! (stefan[at]stefanaleksic.com
-
-
+If you'd like to contribute or would like to talk about anything regariding DataWave in any way, email Stefan! (stefan[at]stefanaleksic.com)
